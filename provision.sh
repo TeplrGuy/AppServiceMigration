@@ -5,13 +5,30 @@ USERNAME=mslearnuser
 PASSWORD="Aa1#$(openssl rand -hex 5)"
 DEPLOYMENTNAME=ExerciseEnvironment
 
+# Create parameter file
+PARAM_FILE="parameters.json"
+cat << EOF > $PARAM_FILE
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "username": {
+      "value": "$USERNAME"
+    },
+    "password": {
+      "value": "$PASSWORD"
+    }
+  }
+}
+EOF
+
 echo "Starting provisioning..."
 
 az deployment group create \
   --name $DEPLOYMENTNAME \
   --resource-group "$RESOURCEGROUP" \
   --template-uri "https://raw.githubusercontent.com/MicrosoftDocs/mslearn-app-service-migration-assistant/master/azuredeploy.json" \
-  --parameters "{\"username\": \"$USERNAME\", \"password\": \"$PASSWORD\"}" \
+  --parameters @$PARAM_FILE \
   --no-wait
 
 echo "#!/usr/bin/env bash
